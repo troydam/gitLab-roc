@@ -3,9 +3,18 @@ workflow:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 stages:
+  - lint
   - dev
   - preprod
   - prod
+
+# ================= LINT =================
+lint:
+  stage: lint
+  image: cytopia/ansible-lint:latest
+  script:
+    - yamllint .
+    - ansible-lint site.yml
 
 # ---- Shared template: the only place the actual task logic lives ----
 .deploy-template:

@@ -4,6 +4,9 @@ Instructions for AI agents and contributors working on this repo.
 
 ## Wave rollout convention
 
+Diagram: [Wave Rollout Pipeline](https://claude.ai/code/artifact/552234f9-aac1-47ed-a6c2-a5af56c28467)
+— source of truth for the gating shape described below.
+
 Every tier (`db`, `app`, `web`) in every environment (`dev`, `preprod`,
 `prod`) deploys in 3 sequential waves: `canary` → `wave2` → `final`.
 

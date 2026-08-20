@@ -4,6 +4,8 @@ Ansible-driven, GitLab CI-orchestrated deployment pipeline for a three-tier
 application (db → app → web), promoted through three environments
 (dev → preprod → prod).
 
+Diagram: [Wave Rollout Pipeline](https://claude.ai/code/artifact/552234f9-aac1-47ed-a6c2-a5af56c28467)
+
 ## Folder structure
 
 ```

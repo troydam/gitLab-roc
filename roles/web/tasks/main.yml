@@ -1,0 +1,12 @@
+---
+# Placeholder task set for the web-tier role.
+# Replace with real tasks (install/configure web server or reverse
+# proxy) once the target web technology is decided. Available vars are
+# defined in inventory/<env>/group_vars/<env>_web.yml (web_port,
+# server_name, app_upstream_hosts, app_upstream_port, etc.).
+
+- name: web role placeholder
+  ansible.builtin.debug:
+    msg: >-
+      web role not yet implemented for {{ inventory_hostname }}
+      (env={{ env }}, tier={{ tier }})

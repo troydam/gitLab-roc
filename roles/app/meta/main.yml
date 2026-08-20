@@ -1,0 +1,6 @@
+---
+galaxy_info:
+  description: Application-tier configuration (placeholder)
+  min_ansible_version: "2.14"
+
+dependencies: []

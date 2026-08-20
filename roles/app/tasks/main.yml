@@ -1,0 +1,12 @@
+---
+# Placeholder task set for the app-tier role.
+# Replace with real tasks (deploy app code, install runtime, configure
+# service) once the target application stack is decided. Available vars
+# are defined in inventory/<env>/group_vars/<env>_app.yml (app_port,
+# app_workers, app_env, db_host, db_port, db_name, etc.).
+
+- name: app role placeholder
+  ansible.builtin.debug:
+    msg: >-
+      app role not yet implemented for {{ inventory_hostname }}
+      (env={{ env }}, tier={{ tier }})

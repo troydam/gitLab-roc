@@ -1,18 +1,21 @@
 ---
 - name: Configure database servers
-  hosts: db
+  hosts: all
   become: true
   roles:
     - db
+  tags: db
 
 - name: Configure application servers
-  hosts: app
+  hosts: all
   become: true
   roles:
     - app
+  tags: app
 
 - name: Configure web servers
-  hosts: web
+  hosts: all
   become: true
   roles:
     - web
+  tags: web

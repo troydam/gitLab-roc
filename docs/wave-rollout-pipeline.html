@@ -6,119 +6,472 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #eef1f4;
-    --card-bg: #ffffff;
-    --ink: #1c232b;
-    --ink-soft: #566072;
-    --border: #d7dde3;
-    --accent: #2f6f6a;
-    --gate-fill: #e8a33d;
-    --gate-border: #8a5a12;
-    --mono-bg: #f4f6f8;
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --ink: #1c2126;
+    --muted: #5c6773;
+    --line: #dadfe3;
+    --accent: #2f6feb;
+    --accent-ink: #14336b;
+    --accent-soft: #e9f0ff;
+    --gate: #b5701c;
+    --gate-soft: #faf0e0;
+    --skip-line: #9aa4ad;
+    --skip-fill: #f1f3f4;
+    --shadow: 0 1px 2px rgba(20, 24, 28, 0.06), 0 8px 24px -12px rgba(20, 24, 28, 0.18);
   }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171a;
+      --surface: #1b1f24;
+      --ink: #eceef0;
+      --muted: #97a2ac;
+      --line: #2c333a;
+      --accent: #6ea2ff;
+      --accent-ink: #dbe7ff;
+      --accent-soft: rgba(110, 162, 255, 0.14);
+      --gate: #e3a35c;
+      --gate-soft: rgba(227, 163, 92, 0.14);
+      --skip-line: #5b6570;
+      --skip-fill: #20252b;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f24;
+    --ink: #eceef0;
+    --muted: #97a2ac;
+    --line: #2c333a;
+    --accent: #6ea2ff;
+    --accent-ink: #dbe7ff;
+    --accent-soft: rgba(110, 162, 255, 0.14);
+    --gate: #e3a35c;
+    --gate-soft: rgba(227, 163, 92, 0.14);
+    --skip-line: #5b6570;
+    --skip-fill: #20252b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  }
+
   * { box-sizing: border-box; }
-  html, body {
+
+  body {
     margin: 0;
-    padding: 0;
     background: var(--bg);
     color: var(--ink);
     font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.55;
   }
-  body {
-    min-height: 100vh;
-    padding: clamp(20px, 4vw, 56px);
-  }
+
   main {
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 56px 24px 80px;
   }
-  header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px 24px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 20px;
-    margin-bottom: 8px;
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
   }
+
   h1 {
-    font-size: clamp(22px, 2.6vw, 30px);
+    font-size: clamp(28px, 4vw, 38px);
     font-weight: 700;
     letter-spacing: -0.01em;
-    margin: 0;
+    margin: 0 0 14px;
+    text-wrap: balance;
   }
+
+  .lede {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0 0 12px;
+  }
+
   .source-note {
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 12.5px;
-    color: var(--ink-soft);
-    background: var(--mono-bg);
-    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 6px;
     padding: 6px 10px;
-    white-space: nowrap;
+    display: inline-block;
+    margin: 0 0 40px;
   }
-  .source-note strong {
+
+  .source-note strong { color: var(--ink); font-weight: 500; }
+
+  .lede code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.92em;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+
+  figure {
+    margin: 0 0 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+  }
+
+  .diagram-scroll { overflow-x: auto; }
+
+  .diagram-scroll svg {
+    display: block;
+    min-width: 960px;
+    width: 100%;
+    height: auto;
     color: var(--ink);
-    font-weight: 500;
   }
+
+  figcaption {
+    padding: 16px 12px 8px;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+
   .legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
-    margin: 20px 0 28px;
+    gap: 20px;
+    padding: 4px 12px 14px;
     font-size: 13px;
-    color: var(--ink-soft);
+    color: var(--muted);
   }
+
   .legend-item { display: flex; align-items: center; gap: 8px; }
-  .swatch { width: 14px; height: 14px; border-radius: 3px; flex: none; }
-  .swatch.gate { background: var(--gate-fill); border: 1.5px solid var(--gate-border); }
-  .swatch.node { background: #ECECFF; border: 1.5px solid #9370DB; }
-  .swatch.skip { background: none; border: 1.5px dashed #888; }
-  .diagram-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: clamp(16px, 3vw, 36px);
-    overflow-x: auto;
-    box-shadow: 0 1px 2px rgba(28, 35, 43, 0.04);
+
+  .swatch { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+  .swatch.auto { background: var(--accent-soft); border: 1.5px solid var(--accent); }
+  .swatch.gate { background: var(--gate-soft); border: 1.5px solid var(--gate); transform: rotate(45deg); border-radius: 3px; }
+  .swatch.skip { background: var(--skip-fill); border: 1.5px dashed var(--skip-line); }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 48px 0 4px;
+    letter-spacing: -0.01em;
   }
-  .diagram-card svg {
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    height: auto;
+
+  .section-note { font-size: 13.5px; color: var(--muted); margin: 0 0 18px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 13.5px;
   }
-  footer {
-    margin-top: 20px;
+
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-size: 12px;
+    color: var(--muted);
+    padding-bottom: 8px;
+  }
+
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+
+  thead th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    background: var(--accent-soft);
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  td code, .job {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 12.5px;
-    color: var(--ink-soft);
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    padding: 0.08em 0.4em;
+    border-radius: 4px;
+    white-space: nowrap;
   }
+
+  .tag {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .tag.manual { color: var(--gate); background: var(--gate-soft); }
+  .tag.auto { color: var(--accent-ink); background: var(--accent-soft); }
+
+  footer {
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  footer code { font-family: "IBM Plex Mono", ui-monospace, monospace; }
   footer a { color: var(--accent); }
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <h1>Wave Rollout Pipeline</h1>
-    <div class="source-note">Generated copy &mdash; source of truth: <strong>docs/pipeline.md</strong></div>
-  </header>
+  <p class="eyebrow">gitLab-roc &middot; deploy pipeline</p>
+  <h1>Wave Rollout Pipeline</h1>
+  <p class="lede">
+    How a change moves from <code>dev</code> to <code>prod</code>: three
+    environments, three tiers per environment, three rollout waves per
+    tier. Every amber gate below waits for a person to click Play in
+    GitLab &mdash; the only job that runs on its own is <code>lint</code>.
+  </p>
+  <div class="source-note">Generated copy &mdash; source of truth: <strong>docs/pipeline.md</strong></div>
+
+  <figure>
+    <div class="diagram-scroll">
+      <svg viewBox="0 0 1160 640" role="img" aria-label="Top: dev, preprod, and prod run left to right, each a db, app, web tier chain, with a manual gate between every tier and between every environment. Bottom: any single tier expands into canary, then a manual gate, then wave2, then a manual gate, then final, with wave2 and final each able to skip automatically when their inventory group has zero hosts.">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon points="0,0 10,5 0,10" fill="currentColor" />
+          </marker>
+        </defs>
+
+        <!-- ===== Row 1: environment overview ===== -->
+        <text x="10" y="16" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="0.06em" fill="var(--muted)">ENVIRONMENT OVERVIEW &mdash; every arrow is a manual gate</text>
+
+        <!-- lint -->
+        <rect x="10" y="70" width="70" height="44" rx="8" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"/>
+        <text x="45" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">lint</text>
+        <line x1="80" y1="92" x2="100" y2="92" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--ink)"/>
+
+        <!-- dev group -->
+        <rect x="100" y="34" width="300" height="150" rx="12" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="114" y="54" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="var(--ink)">dev</text>
+
+        <rect x="114" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="144" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">db</text>
+        <line x1="174" y1="92" x2="188" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="188" y="83" width="18" height="18" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 197 92)"/>
+        <line x1="206" y1="92" x2="220" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <rect x="220" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="250" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">app</text>
+        <line x1="280" y1="92" x2="294" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="294" y="83" width="18" height="18" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 303 92)"/>
+        <line x1="312" y1="92" x2="326" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <rect x="326" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="356" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">web</text>
+
+        <text x="114" y="132" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">each tier = 3 waves,</text>
+        <text x="114" y="146" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">see detail below &darr;</text>
+
+        <line x1="250" y1="108" x2="250" y2="210" stroke="var(--skip-line)" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow)" style="color:var(--skip-line)"/>
+
+        <!-- gate: dev -> preprod -->
+        <line x1="400" y1="92" x2="418" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="418" y="80" width="24" height="24" rx="4" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 430 92)"/>
+        <line x1="442" y1="92" x2="460" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+        <text x="430" y="126" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--gate)">promote</text>
+
+        <!-- preprod group -->
+        <rect x="460" y="34" width="300" height="150" rx="12" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="474" y="54" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="var(--ink)">preprod</text>
+
+        <rect x="474" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="504" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">db</text>
+        <line x1="534" y1="92" x2="548" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="548" y="83" width="18" height="18" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 557 92)"/>
+        <line x1="566" y1="92" x2="580" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <rect x="580" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="610" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">app</text>
+        <line x1="640" y1="92" x2="654" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="654" y="83" width="18" height="18" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 663 92)"/>
+        <line x1="672" y1="92" x2="686" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <rect x="686" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="716" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">web</text>
+
+        <!-- gate: preprod -> prod -->
+        <line x1="760" y1="92" x2="778" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="778" y="80" width="24" height="24" rx="4" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 790 92)"/>
+        <line x1="802" y1="92" x2="820" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+        <text x="790" y="126" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--gate)">promote</text>
+
+        <!-- prod group -->
+        <rect x="820" y="34" width="300" height="150" rx="12" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="834" y="54" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="var(--ink)">prod</text>
+
+        <rect x="834" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="864" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">db</text>
+        <line x1="894" y1="92" x2="908" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="908" y="83" width="18" height="18" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 917 92)"/>
+        <line x1="926" y1="92" x2="940" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <rect x="940" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="970" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">app</text>
+        <line x1="1000" y1="92" x2="1014" y2="92" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="1014" y="83" width="18" height="18" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 1023 92)"/>
+        <line x1="1032" y1="92" x2="1046" y2="92" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <rect x="1046" y="76" width="60" height="32" rx="7" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="1076" y="97" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--gate)">web</text>
+
+        <!-- ===== divider ===== -->
+        <line x1="10" y1="220" x2="1150" y2="220" stroke="var(--line)" stroke-width="1"/>
+
+        <!-- ===== Row 2: wave detail ===== -->
+        <text x="10" y="243" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="0.06em" fill="var(--muted)">INSIDE ONE TIER &mdash; WAVE SEQUENCE (e.g. app in dev)</text>
+
+        <!-- canary -->
+        <rect x="10" y="261" width="168" height="72" rx="10" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="94" y="287" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--gate)">dev:app:canary</text>
+        <text x="94" y="305" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">1 host</text>
+        <text x="94" y="318" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--gate)">when: manual</text>
+
+        <line x1="178" y1="297" x2="196" y2="297" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="196" y="285" width="22" height="22" rx="4" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 207 296)"/>
+        <line x1="218" y1="297" x2="236" y2="297" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <!-- wave2 -->
+        <rect x="236" y="261" width="168" height="72" rx="10" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="320" y="287" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--gate)">dev:app:wave2</text>
+        <text x="320" y="305" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">remaining hosts</text>
+        <text x="320" y="318" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--gate)">when: manual</text>
+
+        <line x1="320" y1="333" x2="320" y2="357" stroke="var(--skip-line)" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow)" style="color:var(--skip-line)"/>
+        <rect x="236" y="357" width="168" height="46" rx="8" fill="var(--skip-fill)" stroke="var(--skip-line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="320" y="377" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">0 hosts assigned</text>
+        <text x="320" y="391" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">&rarr; skip, exit 0</text>
+
+        <line x1="404" y1="297" x2="422" y2="297" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="422" y="285" width="22" height="22" rx="4" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 433 296)"/>
+        <line x1="444" y1="297" x2="462" y2="297" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+
+        <!-- final -->
+        <rect x="462" y="261" width="168" height="72" rx="10" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5"/>
+        <text x="546" y="287" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--gate)">dev:app:final</text>
+        <text x="546" y="305" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">last hosts</text>
+        <text x="546" y="318" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--gate)">when: manual</text>
+
+        <line x1="546" y1="333" x2="546" y2="357" stroke="var(--skip-line)" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow)" style="color:var(--skip-line)"/>
+        <rect x="462" y="357" width="168" height="46" rx="8" fill="var(--skip-fill)" stroke="var(--skip-line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="546" y="377" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">0 hosts assigned</text>
+        <text x="546" y="391" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">&rarr; skip, exit 0</text>
+
+        <line x1="630" y1="297" x2="646" y2="297" stroke="var(--gate)" stroke-width="1.5" style="color:var(--gate)"/>
+        <rect x="646" y="285" width="22" height="22" rx="4" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 657 296)"/>
+        <line x1="668" y1="297" x2="686" y2="297" stroke="var(--gate)" stroke-width="1.5" marker-end="url(#arrow)" style="color:var(--gate)"/>
+        <text x="657" y="272" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="var(--muted)">next tier</text>
+
+        <!-- next tier ghost -->
+        <rect x="686" y="261" width="188" height="72" rx="10" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="780" y="287" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="var(--muted)">dev:web:canary</text>
+        <text x="780" y="305" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">manual, after</text>
+        <text x="780" y="318" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">app:final passes</text>
+
+        <!-- ===== legend ===== -->
+        <line x1="10" y1="425" x2="1150" y2="425" stroke="var(--line)" stroke-width="1"/>
+        <text x="10" y="448" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="0.06em" fill="var(--muted)">LEGEND</text>
+
+        <rect x="10" y="459" width="20" height="20" rx="5" fill="var(--surface)" stroke="var(--line)" stroke-width="1.5"/>
+        <text x="38" y="469" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink)">Automated job</text>
+        <text x="38" y="483" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="var(--muted)">only <tspan font-family="IBM Plex Mono, monospace">lint</tspan>, on every push to main</text>
+
+        <rect x="280" y="461" width="16" height="16" rx="3" fill="var(--gate-soft)" stroke="var(--gate)" stroke-width="1.5" transform="rotate(45 288 469)"/>
+        <text x="310" y="469" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink)">Manual gate</text>
+        <text x="310" y="483" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="var(--muted)">a person clicks &#9654; in GitLab to proceed</text>
+
+        <rect x="580" y="459" width="20" height="20" rx="5" fill="var(--skip-fill)" stroke="var(--skip-line)" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <text x="608" y="469" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink)">Empty wave</text>
+        <text x="608" y="483" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="var(--muted)">no hosts assigned &mdash; job exits 0, nothing runs</text>
+      </svg>
+    </div>
+    <figcaption>
+      Top: three environments, each a <code>db &rarr; app &rarr; web</code>
+      tier chain &mdash; every arrow, including tier-to-tier and
+      environment-to-environment, is a manual gate. Bottom: any single
+      tier &mdash; here <code>dev:app</code> &mdash; expands into its own
+      three-wave chain. The same shape repeats for every tier in every
+      environment; only <code>lint</code> runs without a click.
+    </figcaption>
+  </figure>
 
   <div class="legend">
-    <div class="legend-item"><span class="swatch node"></span>auto step</div>
+    <div class="legend-item"><span class="swatch auto"></span>auto (lint only)</div>
     <div class="legend-item"><span class="swatch gate"></span>manual gate (human approval required)</div>
     <div class="legend-item"><span class="swatch skip"></span>skipped when inventory group is empty</div>
   </div>
 
-  <div class="diagram-card">
-<svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 1197.79px; background-color: transparent;" viewBox="0 0 1197.7890625 1632" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#333;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#552222;}#my-svg .error-text{fill:#552222;stroke:#552222;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#333333;stroke:#333333;}#my-svg .marker.cross{stroke:#333333;}#my-svg svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#my-svg p{margin:0;}#my-svg .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#333;}#my-svg .cluster-label text{fill:#333;}#my-svg .cluster-label span{color:#333;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#333;color:#333;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#ECECFF;stroke:#9370DB;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:#333333!important;stroke-width:0;stroke:#333333;}#my-svg .arrowheadPath{fill:#333333;}#my-svg .edgePath .path{stroke:#333333;stroke-width:1px;}#my-svg .flowchart-link{stroke:#333333;fill:none;}#my-svg .edgeLabel{background-color:rgba(232,232,232, 0.8);text-align:center;}#my-svg .edgeLabel p{background-color:rgba(232,232,232, 0.8);}#my-svg .edgeLabel rect{opacity:0.5;background-color:rgba(232,232,232, 0.8);fill:rgba(232,232,232, 0.8);}#my-svg .labelBkg{background-color:rgba(232, 232, 232, 0.5);}#my-svg .cluster rect{fill:#ffffde;stroke:#aaaa33;stroke-width:1px;}#my-svg .cluster text{fill:#333;}#my-svg .cluster span{color:#333;}#my-svg .node .collapsed-indicator{fill:#aaaa33;stroke:none;opacity:0.6;}#my-svg .node .collapsed-separator{stroke:#aaaa33;stroke-width:0.75px;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(80, 100%, 96.2745098039%);border:1px solid #aaaa33;border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#333;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:rgba(232,232,232, 0.8);text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:rgba(232,232,232, 0.8);padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:rgba(232,232,232, 0.8);fill:rgba(232,232,232, 0.8);}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#9370DB;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].swimlane.cluster rect{filter:none;}#my-svg [data-look="neo"].node path{stroke:#9370DB;stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#9370DB;filter:none;}#my-svg [data-look="neo"].node circle{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}#my-svg .gate&gt;*{fill:rgb(232, 163, 61)!important;stroke:rgb(138, 90, 18)!important;color:rgb(26, 19, 0)!important;font-weight:bold!important;}#my-svg .gate span{fill:rgb(232, 163, 61)!important;stroke:rgb(138, 90, 18)!important;color:rgb(26, 19, 0)!important;font-weight:bold!important;}#my-svg .gate tspan{fill:rgb(26, 19, 0)!important;}#my-svg .skip&gt;*{fill:none!important;stroke:rgb(136, 136, 136)!important;color:rgb(136, 136, 136)!important;stroke-dasharray:3,3!important;}#my-svg .skip span{fill:none!important;stroke:rgb(136, 136, 136)!important;color:rgb(136, 136, 136)!important;stroke-dasharray:3,3!important;}#my-svg .skip tspan{fill:rgb(136, 136, 136)!important;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"><g class="cluster" id="my-svg-PROD" data-look="classic"><rect style="" x="243.40625" y="1240" width="312.3125" height="384"/><g class="cluster-label" transform="translate(383.546875, 1240)"><foreignObject width="32.03125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>prod</p></span></div></foreignObject></g></g><g class="cluster" id="my-svg-PREPROD" data-look="classic"><rect style="" x="243.40625" y="782" width="312.3125" height="384"/><g class="cluster-label" transform="translate(371.984375, 782)"><foreignObject width="55.15625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>preprod</p></span></div></foreignObject></g></g><g class="cluster" id="my-svg-DEV" data-look="classic"><rect style="" x="8" y="324" width="773.125" height="384"/><g class="cluster-label" transform="translate(381.6640625, 324)"><foreignObject width="25.796875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>dev</p></span></div></foreignObject></g></g></g><g class="edgePaths"><path d="M399.563,427L399.563,431.167C399.563,435.333,399.563,443.667,399.563,451.333C399.563,459,399.563,466,399.563,469.5L399.563,473" id="my-svg-L_devdb_devapp_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_devdb_devapp_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjQyN30seyJ4IjozOTkuNTYyNSwieSI6NDUyfSx7IngiOjM5OS41NjI1LCJ5Ijo0Nzd9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,555L399.563,559.167C399.563,563.333,399.563,571.667,399.563,579.333C399.563,587,399.563,594,399.563,597.5L399.563,601" id="my-svg-L_devapp_devweb_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_devapp_devweb_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjU1NX0seyJ4IjozOTkuNTYyNSwieSI6NTgwfSx7IngiOjM5OS41NjI1LCJ5Ijo2MDV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,885L399.563,889.167C399.563,893.333,399.563,901.667,399.563,909.333C399.563,917,399.563,924,399.563,927.5L399.563,931" id="my-svg-L_ppdb_ppapp_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_ppdb_ppapp_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjg4NX0seyJ4IjozOTkuNTYyNSwieSI6OTEwfSx7IngiOjM5OS41NjI1LCJ5Ijo5MzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,1013L399.563,1017.167C399.563,1021.333,399.563,1029.667,399.563,1037.333C399.563,1045,399.563,1052,399.563,1055.5L399.563,1059" id="my-svg-L_ppapp_ppweb_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_ppapp_ppweb_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjEwMTN9LHsieCI6Mzk5LjU2MjUsInkiOjEwMzh9LHsieCI6Mzk5LjU2MjUsInkiOjEwNjN9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,1343L399.563,1347.167C399.563,1351.333,399.563,1359.667,399.563,1367.333C399.563,1375,399.563,1382,399.563,1385.5L399.563,1389" id="my-svg-L_prdb_prapp_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_prdb_prapp_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjEzNDN9LHsieCI6Mzk5LjU2MjUsInkiOjEzNjh9LHsieCI6Mzk5LjU2MjUsInkiOjEzOTN9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,1471L399.563,1475.167C399.563,1479.333,399.563,1487.667,399.563,1495.333C399.563,1503,399.563,1510,399.563,1513.5L399.563,1517" id="my-svg-L_prapp_prweb_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_prapp_prweb_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjE0NzF9LHsieCI6Mzk5LjU2MjUsInkiOjE0OTZ9LHsieCI6Mzk5LjU2MjUsInkiOjE1MjF9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,683L399.563,687.167C399.563,691.333,399.563,699.667,399.563,710C399.563,720.333,399.563,732.667,399.563,745C399.563,757.333,399.563,769.667,399.563,779.333C399.563,789,399.563,796,399.563,799.5L399.563,803" id="my-svg-L_devweb_ppdb_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_devweb_ppdb_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjY4M30seyJ4IjozOTkuNTYyNSwieSI6NzA4fSx7IngiOjM5OS41NjI1LCJ5Ijo3NDV9LHsieCI6Mzk5LjU2MjUsInkiOjc4Mn0seyJ4IjozOTkuNTYyNSwieSI6ODA3fV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M399.563,1141L399.563,1145.167C399.563,1149.333,399.563,1157.667,399.563,1168C399.563,1178.333,399.563,1190.667,399.563,1203C399.563,1215.333,399.563,1227.667,399.563,1237.333C399.563,1247,399.563,1254,399.563,1257.5L399.563,1261" id="my-svg-L_ppweb_prdb_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_ppweb_prdb_0" data-points="W3sieCI6Mzk5LjU2MjUsInkiOjExNDF9LHsieCI6Mzk5LjU2MjUsInkiOjExNjZ9LHsieCI6Mzk5LjU2MjUsInkiOjEyMDN9LHsieCI6Mzk5LjU2MjUsInkiOjEyNDB9LHsieCI6Mzk5LjU2MjUsInkiOjEyNjV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M106.078,168L106.078,189.833C106.078,211.667,106.078,255.333,106.078,280.667C106.078,306,106.078,313,106.078,316.5L106.078,320" id="my-svg-L_lint_DEV_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_lint_DEV_0" data-points="W3sieCI6MTA2LjA3ODEyNSwieSI6MTY4fSx7IngiOjEwNi4wNzgxMjUsInkiOjI5OX0seyJ4IjoxMDYuMDc4MTI1LCJ5IjozMjR9LHsieCI6MTA2LjA3ODEyNSwieSI6MzI0fV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M693.047,274L693.047,278.167C693.047,282.333,693.047,290.667,693.047,298.333C693.047,306,693.047,313,693.047,316.5L693.047,320" id="my-svg-L_WAVE_DEV_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_WAVE_DEV_0" data-points="W3sieCI6NjkzLjA0Njg3NSwieSI6Mjc0fSx7IngiOjY5My4wNDY4NzUsInkiOjI5OX0seyJ4Ijo2OTMuMDQ2ODc1LCJ5IjozMjR9LHsieCI6NTIwLjcxODc1LCJ5IjozNjEuNTc5NTEzMzg5NzY3M31d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_devdb_devapp_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_devapp_devweb_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_ppdb_ppapp_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_ppapp_ppweb_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_prdb_prapp_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_prapp_prweb_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(399.5625, 745)"><g class="label" data-id="L_devweb_ppdb_0" transform="translate(-60.03125, -12)"><foreignObject width="120.0625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>manual: promote</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(399.5625, 1203)"><g class="label" data-id="L_ppweb_prdb_0" transform="translate(-60.03125, -12)"><foreignObject width="120.0625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>manual: promote</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_lint_DEV_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_WAVE_DEV_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g class="root" transform="translate(188.3046875, 0)"><g class="clusters"><g class="cluster" id="my-svg-WAVE" data-look="classic"><rect style="" x="8" y="8" width="993.484375" height="266"/><g class="cluster-label" transform="translate(230.8359375, 8)"><foreignObject width="547.8125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>wave rollout pattern (applies to every tier below) - every step is when: manual</p></span></div></foreignObject></g></g></g><g class="edgePaths"><path d="M172.172,143.24L178.422,145.533C184.672,147.827,197.172,152.413,209.005,154.707C220.839,157,232.005,157,237.589,157L243.172,157" id="my-svg-L_w_canary_w_wave2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_w_canary_w_wave2_0" data-points="W3sieCI6MTcyLjE3MTg3NSwieSI6MTQzLjI0MDAyNDc5Mjc0ODEzfSx7IngiOjIwOS42NzE4NzUsInkiOjE1N30seyJ4IjoyNDcuMTcxODc1LCJ5IjoxNTd9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M373.844,175.743L387.505,179.786C401.167,183.829,428.49,191.914,455.146,195.957C481.802,200,507.792,200,520.786,200L533.781,200" id="my-svg-L_w_wave2_w_final_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_w_wave2_w_final_0" data-points="W3sieCI6MzczLjg0Mzc1LCJ5IjoxNzUuNzQyOTk2OTM1MzE5MX0seyJ4Ijo0NTUuODEyNSwieSI6MjAwfSx7IngiOjUzNy43ODEyNSwieSI6MjAwfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M172.172,82.942L178.422,79.285C184.672,75.628,197.172,68.314,220.228,64.657C243.284,61,276.896,61,317.919,61C358.943,61,407.378,61,455.813,61C504.247,61,552.682,61,601.117,61C649.552,61,697.987,61,735.244,66.05C772.501,71.1,798.581,81.2,811.621,86.25L824.661,91.3" id="my-svg-L_w_canary_w_skip_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_w_canary_w_skip_0" data-points="W3sieCI6MTcyLjE3MTg3NSwieSI6ODIuOTQxNTgyMDg3MjM5NDh9LHsieCI6MjA5LjY3MTg3NSwieSI6NjF9LHsieCI6MzEwLjUwNzgxMjUsInkiOjYxfSx7IngiOjQ1NS44MTI1LCJ5Ijo2MX0seyJ4Ijo2MDEuMTE3MTg3NSwieSI6NjF9LHsieCI6NzQ2LjQyMTg3NSwieSI6NjF9LHsieCI6ODI4LjM5MDYyNSwieSI6OTIuNzQ0MTgzNjIwMjM5OTd9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M373.844,138.257L387.505,134.214C401.167,130.171,428.49,122.086,466.368,118.043C504.247,114,552.682,114,601.117,114C649.552,114,697.987,114,735.2,114.434C772.412,114.868,798.403,115.735,811.398,116.169L824.393,116.603" id="my-svg-L_w_wave2_w_skip_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_w_wave2_w_skip_0" data-points="W3sieCI6MzczLjg0Mzc1LCJ5IjoxMzguMjU3MDAzMDY0NjgwOX0seyJ4Ijo0NTUuODEyNSwieSI6MTE0fSx7IngiOjYwMS4xMTcxODc1LCJ5IjoxMTR9LHsieCI6NzQ2LjQyMTg3NSwieSI6MTE0fSx7IngiOjgyOC4zOTA2MjUsInkiOjExNi43MzY1Njc1NTM0Njg5Nn1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M664.453,200L678.115,200C691.776,200,719.099,200,748.815,191.317C778.53,182.634,810.639,165.269,826.693,156.586L842.747,147.903" id="my-svg-L_w_final_w_skip_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_w_final_w_skip_0" data-points="W3sieCI6NjY0LjQ1MzEyNSwieSI6MjAwfSx7IngiOjc0Ni40MjE4NzUsInkiOjIwMH0seyJ4Ijo4NDYuMjY1NjI1LCJ5IjoxNDZ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_w_canary_w_wave2_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_w_wave2_w_final_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(455.8125, 61)"><g class="label" data-id="L_w_canary_w_skip_0" transform="translate(-44.46875, -12)"><foreignObject width="88.9375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>group empty</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(601.1171875, 114)"><g class="label" data-id="L_w_wave2_w_skip_0" transform="translate(-44.46875, -12)"><foreignObject width="88.9375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>group empty</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(746.421875, 200)"><g class="label" data-id="L_w_final_w_skip_0" transform="translate(-44.46875, -12)"><foreignObject width="88.9375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>group empty</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default gate" id="my-svg-flowchart-w_canary-0" data-look="classic" transform="translate(108.8359375, 120)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-63.3359375" y="-39" width="126.671875" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-33.3359375, -24)"><rect/><foreignObject width="66.671875" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>canary<br />(manual)</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-w_wave2-1" data-look="classic" transform="translate(310.5078125, 157)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-63.3359375" y="-39" width="126.671875" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-33.3359375, -24)"><rect/><foreignObject width="66.671875" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>wave2<br />(manual)</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-w_final-2" data-look="classic" transform="translate(601.1171875, 200)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-63.3359375" y="-39" width="126.671875" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-33.3359375, -24)"><rect/><foreignObject width="66.671875" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>final<br />(manual)</p></span></div></foreignObject></g></g><g class="node default skip" id="my-svg-flowchart-w_skip-4" data-look="classic" transform="translate(896.1875, 119)"><rect class="basic label-container" style="fill:none !important;stroke:#888 !important;stroke-dasharray:3 3 !important" x="-67.796875" y="-27" width="135.59375" height="54"/><g class="label" style="color:#888 !important" transform="translate(-37.796875, -12)"><rect/><foreignObject width="75.59375" height="24"><div style="color: rgb(136, 136, 136) !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#888 !important" class="nodeLabel"><p>skip, exit 0</p></span></div></foreignObject></g></g></g></g><g class="node default" id="my-svg-flowchart-lint-9" data-look="classic" transform="translate(106.078125, 141)"><rect class="basic label-container" style="" x="-40.2265625" y="-27" width="80.453125" height="54"/><g class="label" style="" transform="translate(-10.2265625, -12)"><rect/><foreignObject width="20.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>lint</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-devdb-11" data-look="classic" transform="translate(399.5625, 388)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>db<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-devapp-12" data-look="classic" transform="translate(399.5625, 516)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>app<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-devweb-13" data-look="classic" transform="translate(399.5625, 644)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>web<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-ppdb-14" data-look="classic" transform="translate(399.5625, 846)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>db<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-ppapp-15" data-look="classic" transform="translate(399.5625, 974)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>app<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-ppweb-16" data-look="classic" transform="translate(399.5625, 1102)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>web<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-prdb-17" data-look="classic" transform="translate(399.5625, 1304)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>db<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-prapp-18" data-look="classic" transform="translate(399.5625, 1432)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>app<br />canary → wave2 → final</p></span></div></foreignObject></g></g><g class="node default gate" id="my-svg-flowchart-prweb-19" data-look="classic" transform="translate(399.5625, 1560)"><rect class="basic label-container" style="fill:#e8a33d !important;stroke:#8a5a12 !important" x="-121.15625" y="-39" width="242.3125" height="78"/><g class="label" style="color:#1a1300 !important;font-weight:bold !important" transform="translate(-91.15625, -24)"><rect/><foreignObject width="182.3125" height="48"><div style="color: rgb(26, 19, 0) !important; font-weight: bold !important; display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;" xmlns="http://www.w3.org/1999/xhtml"><span style="color:#1a1300 !important;font-weight:bold !important" class="nodeLabel"><p>web<br />canary → wave2 → final</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs></svg>
-  </div>
+  <h2>Job reference</h2>
+  <p class="section-note">Every job below shares one <code>.deploy-template</code> and differs only in <code>ENVIRONMENT</code>, <code>PHASE</code>, and <code>WAVE</code>. All 27 deploy jobs are <code>when: manual</code>.</p>
+  <table>
+    <caption>Gating pattern per wave &mdash; applies identically to db, app, and web in every environment</caption>
+    <thead>
+      <tr>
+        <th>Wave</th>
+        <th>Job pattern</th>
+        <th>Runs when</th>
+        <th>Targets</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>canary</td>
+        <td><code>&lt;env&gt;:&lt;tier&gt;:canary</code></td>
+        <td><span class="tag manual">manual</span> &mdash; clickable once the previous tier's <code>final</code> passes (or, for the first job in <code>dev</code>, once <code>lint</code> passes)</td>
+        <td><code>&lt;env&gt;_&lt;tier&gt;_canary</code></td>
+      </tr>
+      <tr>
+        <td>wave2</td>
+        <td><code>&lt;env&gt;:&lt;tier&gt;:wave2</code></td>
+        <td><span class="tag manual">manual</span> after <code>canary</code> is reviewed</td>
+        <td><code>&lt;env&gt;_&lt;tier&gt;_wave2</code></td>
+      </tr>
+      <tr>
+        <td>final</td>
+        <td><code>&lt;env&gt;:&lt;tier&gt;:final</code></td>
+        <td><span class="tag manual">manual</span> after <code>wave2</code> is reviewed</td>
+        <td><code>&lt;env&gt;_&lt;tier&gt;_final</code></td>
+      </tr>
+      <tr>
+        <td>promotion gate</td>
+        <td><code>preprod:db:canary</code>, <code>prod:db:canary</code></td>
+        <td><span class="tag manual">manual</span> &mdash; mechanically the same rule as every other <code>canary</code>, but this click also promotes the whole environment (dev&rarr;preprod, preprod&rarr;prod)</td>
+        <td><code>preprod_db_canary</code>, <code>prod_db_canary</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <footer>
-    Rendered from the Mermaid source in <a href="pipeline.md">docs/pipeline.md</a>. Edit that file, not this one &mdash; regenerate this page after any change.
+    Full convention, including how to add a new environment or tier:
+    <code>CLAUDE.md</code>. Pipeline definition: <code>.gitlab-ci.yml</code>.
+    Inventory shape: <code>inventory/&lt;env&gt;/hosts.yml</code>.
+    Rendered from <a href="pipeline.md">docs/pipeline.md</a> &mdash; edit
+    that file, not this one; regenerate this page after any change.
   </footer>
 </main>
 </body>

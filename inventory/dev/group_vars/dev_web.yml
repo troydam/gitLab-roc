@@ -1,0 +1,9 @@
+---
+env: dev
+tier: web
+
+web_port: 80
+server_name: dev.example.com
+
+app_upstream_hosts: "{{ groups['dev_app'] }}"
+app_upstream_port: 8080

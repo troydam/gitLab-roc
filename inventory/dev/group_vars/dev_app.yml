@@ -1,0 +1,11 @@
+---
+env: dev
+tier: app
+
+app_port: 8080
+app_workers: 2
+app_env: development
+
+db_host: "{{ hostvars[groups['dev_db'][0]]['ansible_host'] }}"
+db_port: 5432
+db_name: app_dev

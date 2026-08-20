@@ -1,0 +1,11 @@
+---
+env: prod
+tier: db
+
+db_port: 5432
+db_name: app_prod
+db_user: app_prod
+db_max_connections: 200
+
+postgres_version: "15"
+db_replication_enabled: true

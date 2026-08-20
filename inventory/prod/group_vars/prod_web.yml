@@ -1,0 +1,9 @@
+---
+env: prod
+tier: web
+
+web_port: 443
+server_name: example.com
+
+app_upstream_hosts: "{{ groups['prod_app'] }}"
+app_upstream_port: 8080

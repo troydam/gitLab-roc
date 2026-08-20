@@ -1,0 +1,10 @@
+---
+env: dev
+tier: db
+
+db_port: 5432
+db_name: app_dev
+db_user: app_dev
+db_max_connections: 50
+
+postgres_version: "15"

@@ -1,0 +1,10 @@
+---
+env: preprod
+tier: db
+
+db_port: 5432
+db_name: app_preprod
+db_user: app_preprod
+db_max_connections: 100
+
+postgres_version: "15"

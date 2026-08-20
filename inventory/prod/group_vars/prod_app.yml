@@ -1,0 +1,11 @@
+---
+env: prod
+tier: app
+
+app_port: 8080
+app_workers: 8
+app_env: production
+
+db_host: "{{ hostvars[groups['prod_db'][0]]['ansible_host'] }}"
+db_port: 5432
+db_name: app_prod

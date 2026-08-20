@@ -1,0 +1,9 @@
+---
+env: preprod
+tier: web
+
+web_port: 80
+server_name: preprod.example.com
+
+app_upstream_hosts: "{{ groups['preprod_app'] }}"
+app_upstream_port: 8080

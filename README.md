@@ -45,7 +45,7 @@ application (db → app → web), promoted through three environments
 
 | Path | Type | Purpose |
 |---|---|---|
-| `.gitlab-ci.yml` | GitLab CI config | Defines the `dev` → `preprod` → `prod` pipeline stages and the `db` → `app` → `web` job ordering within each, via a shared `.deploy-template` and `needs:`. Gated to the `main` branch by a top-level `workflow: rules`. Preprod and prod `db` jobs are `when: manual` (human promotion gate). |
+| `.gitlab-ci.yml` | GitLab CI config | Defines the `dev` → `preprod` → `prod` pipeline stages and the `db` → `app` → `web` job ordering within each, via a shared `.deploy-template` and `needs:`. Gated to the `main` branch by a top-level `workflow: rules`. Preprod and prod `db` jobs are `when: manual` (human promotion gate). The template runs on the `cytopia/ansible` image and loads an SSH key from the `SSH_PRIVATE_KEY` CI/CD variable (masked, project settings) before invoking Ansible. |
 | `site.yml` | Ansible playbook | Single entry point run by every CI job. Three plays, one per tier (`hosts: db`, `hosts: app`, `hosts: web`), each applying the matching role. The CI job scopes which hosts run via `--limit <env>_<tier>` (a subgroup of the play's `hosts:` group). |
 | `roles/db/`, `roles/app/`, `roles/web/` | Ansible roles | Standard-shape role skeletons (`tasks/`, `defaults/`, `handlers/`, `meta/`). This repo is a generic pipeline template not tied to a specific stack, so each role's `tasks/main.yml` is currently a placeholder `debug` task — swap in real tasks (install engine/runtime/web server, deploy config) once the actual technology for that tier is decided. Each role's tasks comment references the `group_vars` already available to it. |
 | `inventory/<env>/hosts.yml` | Ansible inventory | Static host list for one environment. Each tier is a parent group (`db`, `app`, `web`) — matching `site.yml`'s `hosts:` — with a `children:` subgroup named `<env>_db`/`<env>_app`/`<env>_web` holding the actual hosts. This is the standard Ansible pattern for "same role, many environments": `site.yml` targets the parent group, `--limit` narrows to the environment-specific child. Hosts are plain DNS names — no per-host vars here; all tier/environment config lives in `group_vars/`. |
@@ -82,6 +82,16 @@ Each job runs:
 ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml \
   --limit ${ENVIRONMENT}_${PHASE}
 ```
+
+## Requirements to run for real
+
+- A GitLab CI/CD variable named `SSH_PRIVATE_KEY` (masked, protected)
+  holding the private key Ansible uses to SSH into target hosts. The
+  corresponding public key must be authorized on every host listed in
+  `inventory/<env>/hosts.yml`.
+- Those hosts must already exist and be reachable from the GitLab
+  Runner — this repo does not provision infrastructure, only configures
+  hosts that already exist.
 
 ## Known gaps
 

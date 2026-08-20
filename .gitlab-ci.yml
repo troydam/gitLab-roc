@@ -10,7 +10,7 @@ stages:
 # ---- Shared template: the only place the actual task logic lives ----
 .deploy-template:
   script:
-    - ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml --limit ${ENVIRONMENT}_${PHASE} --tags ${PHASE}
+    - ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml --limit ${ENVIRONMENT}_${PHASE}
 
 # ================= DEV =================
 deploy-dev-db:

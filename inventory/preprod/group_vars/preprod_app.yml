@@ -6,6 +6,6 @@ app_port: 8080
 app_workers: 4
 app_env: staging
 
-db_host: "{{ hostvars[groups['preprod_db'][0]]['ansible_host'] }}"
+db_host: "{{ groups['preprod_db'][0] }}"
 db_port: 5432
 db_name: app_preprod

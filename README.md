@@ -9,6 +9,7 @@ application (db → app → web), promoted through three environments
 ```
 .
 ├── .gitlab-ci.yml
+├── CLAUDE.md
 ├── ansible.cfg
 ├── .yamllint
 ├── site.yml
@@ -47,12 +48,12 @@ application (db → app → web), promoted through three environments
 
 | Path | Type | Purpose |
 |---|---|---|
-| `.gitlab-ci.yml` | GitLab CI config | Defines a `lint` stage followed by the `dev` → `preprod` → `prod` pipeline stages, and the `db` → `app` → `web` job ordering within each, via a shared `.deploy-template` and `needs:`. Gated to the `main` branch by a top-level `workflow: rules`. Preprod and prod `db` jobs are `when: manual` (human promotion gate). The deploy template runs on the `cytopia/ansible` image and loads an SSH key from the `SSH_PRIVATE_KEY` CI/CD variable (masked, project settings) before invoking Ansible. |
+| `.gitlab-ci.yml` | GitLab CI config | Defines a `lint` stage followed by `dev` → `preprod` → `prod`. Within each environment: `db` → `app` → `web` tier ordering, and within each tier: `canary` → `wave2` → `final` rollout waves, all via a shared `.deploy-template` and `needs:`. See `CLAUDE.md` for the full wave-rollout convention. Gated to the `main` branch by a top-level `workflow: rules`. The deploy template runs on the `cytopia/ansible` image and loads an SSH key from the `SSH_PRIVATE_KEY` CI/CD variable (masked, project settings) before invoking Ansible. |
 | `ansible.cfg` | Ansible config | Repo-local Ansible defaults: inventory path, `host_key_checking`, disables retry-file clutter, `yaml` stdout for readable CI logs, connection `pipelining` for speed. Keeps behavior consistent across whatever runner/image executes the job, instead of relying on image defaults. |
 | `.yamllint` | Lint config | Rules for the `lint` CI job's `yamllint` pass — relaxes line-length to 120 and accepts `true`/`false` as the only truthy spellings. |
 | `site.yml` | Ansible playbook | Single entry point run by every CI job. Three plays, one per tier (`hosts: db`, `hosts: app`, `hosts: web`), each applying the matching role. The CI job scopes which hosts run via `--limit <env>_<tier>` (a subgroup of the play's `hosts:` group). |
 | `roles/db/`, `roles/app/`, `roles/web/` | Ansible roles | Standard-shape role skeletons (`tasks/`, `defaults/`, `handlers/`, `meta/`). This repo is a generic pipeline template not tied to a specific stack, so each role's `tasks/main.yml` is currently a placeholder `debug` task — swap in real tasks (install engine/runtime/web server, deploy config) once the actual technology for that tier is decided. Each role's tasks comment references the `group_vars` already available to it. |
-| `inventory/<env>/hosts.yml` | Ansible inventory | Static host list for one environment. Each tier is a parent group (`db`, `app`, `web`) — matching `site.yml`'s `hosts:` — with a `children:` subgroup named `<env>_db`/`<env>_app`/`<env>_web` holding the actual hosts. This is the standard Ansible pattern for "same role, many environments": `site.yml` targets the parent group, `--limit` narrows to the environment-specific child. Hosts are plain DNS names — no per-host vars here; all tier/environment config lives in `group_vars/`. |
+| `inventory/<env>/hosts.yml` | Ansible inventory | Static host list for one environment. Each tier is a parent group (`db`, `app`, `web`) — matching `site.yml`'s `hosts:` — nesting down to `<env>_db`/`<env>_app`/`<env>_web`, which in turn nests to three wave groups: `<env>_<tier>_canary`, `_wave2`, `_final`. Each host is declared exactly once, under whichever wave group it's assigned to; group nesting (not duplication) gives it membership in every parent group. CI targets a wave group directly via `--limit`. Hosts are plain DNS names — no per-host vars here; all tier/environment config lives in `group_vars/`. |
 | `inventory/<env>/group_vars/<env>_db.yml` | Ansible group vars | Database-tier config for that environment: `db_port`, `db_name`, `db_user`, `db_max_connections`, `postgres_version` (prod also sets `db_replication_enabled`). |
 | `inventory/<env>/group_vars/<env>_app.yml` | Ansible group vars | App-tier config: `app_port`, `app_workers`, `app_env`, and `db_host` (resolved from the environment's `_db` group so app servers know which db to talk to). |
 | `inventory/<env>/group_vars/<env>_web.yml` | Ansible group vars | Web-tier config: `web_port`, `server_name`, and `app_upstream_hosts`/`app_upstream_port` (resolved from the environment's `_app` group for reverse-proxy upstream config). |
@@ -64,31 +65,47 @@ Every `group_vars/*.yml` also sets `env: <dev|preprod|prod>` and `tier:
 
 | Env | Branch trigger | Promotion | Notes |
 |---|---|---|---|
-| dev | `main` | automatic | Runs first in the pipeline. |
-| preprod | `main` | manual (`preprod:db`) | Gated behind all of `dev` completing (`needs: dev:web`). |
-| prod | `main` | manual (`prod:db`) | Gated behind all of `preprod` completing (`needs: preprod:web`). |
+| dev | `main` | `db:canary` automatic | Runs first in the pipeline. |
+| preprod | `main` | manual (`preprod:db:canary`) | Gated behind all of `dev` completing. |
+| prod | `main` | manual (`prod:db:canary`) | Gated behind all of `preprod` completing. |
 
 ## Pipeline flow
+
+Each tier rolls out in 3 waves — `canary` → `wave2` → `final`. A tier's
+`canary` job auto-runs once the previous tier's `final` job passes (except
+each environment's first job, `db:canary`, which is a manual promotion
+gate). Every `wave2`/`final` job is `when: manual` — a human reviews the
+prior wave before promoting further. See `CLAUDE.md` for the full
+convention, including how empty wave groups are handled.
 
 ```
 lint
   │
   ▼
-dev:db → dev:app → dev:web
-              │
-              ▼ (needs, manual gate)
-preprod:db → preprod:app → preprod:web
-              │
-              ▼ (needs, manual gate)
-prod:db → prod:app → prod:web
+dev:db:canary → dev:db:wave2 (manual) → dev:db:final (manual)
+                                              │
+                                              ▼
+dev:app:canary → dev:app:wave2 (manual) → dev:app:final (manual)
+                                              │
+                                              ▼
+dev:web:canary → dev:web:wave2 (manual) → dev:web:final (manual)
+                                              │
+                                              ▼ (manual: promote to preprod)
+preprod:db:canary → ... → preprod:web:final
+                                              │
+                                              ▼ (manual: promote to prod)
+prod:db:canary → ... → prod:web:final
 ```
 
 Each job runs:
 
 ```
 ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml \
-  --limit ${ENVIRONMENT}_${PHASE}
+  --limit ${ENVIRONMENT}_${PHASE}_${WAVE}
 ```
+
+If `${ENVIRONMENT}_${PHASE}_${WAVE}` has no hosts, the job logs that and
+exits 0 without invoking Ansible.
 
 ## Requirements to run for real
 

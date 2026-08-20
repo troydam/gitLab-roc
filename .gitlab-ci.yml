@@ -17,6 +17,9 @@ lint:
     - ansible-lint site.yml
 
 # ---- Shared template: the only place the actual task logic lives ----
+# Requires ENVIRONMENT, PHASE, WAVE. Targets inventory group
+# <ENVIRONMENT>_<PHASE>_<WAVE>. If that group has no hosts, the job
+# exits 0 without running Ansible (see CLAUDE.md: Wave rollout).
 .deploy-template:
   image: cytopia/ansible:latest
   before_script:
@@ -26,73 +29,242 @@ lint:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - ssh-keyscan -H $(ansible-inventory -i inventory/${ENVIRONMENT}/hosts.yml --list | python3 -c "import json,sys; d=json.load(sys.stdin); print(' '.join(d['_meta']['hostvars'].keys()))") >> ~/.ssh/known_hosts 2>/dev/null || true
   script:
-    - ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml --limit ${ENVIRONMENT}_${PHASE}
+    - |
+      GROUP="${ENVIRONMENT}_${PHASE}_${WAVE}"
+      COUNT=$(ansible-inventory -i inventory/${ENVIRONMENT}/hosts.yml --list | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('$GROUP',{}).get('hosts',[])))")
+      if [ "$COUNT" -eq 0 ]; then
+        echo "No hosts in $GROUP - nothing to do for this wave."
+        exit 0
+      fi
+      ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml --limit "$GROUP"
 
 # ================= DEV =================
-deploy-dev-db:
+dev:db:canary:
   extends: .deploy-template
   stage: dev
-  variables: { ENVIRONMENT: dev, PHASE: db }
+  variables: { ENVIRONMENT: dev, PHASE: db, WAVE: canary }
   environment: dev
 
-deploy-dev-app:
+dev:db:wave2:
   extends: .deploy-template
   stage: dev
-  needs: ["deploy-dev-db"]
-  variables: { ENVIRONMENT: dev, PHASE: app }
+  needs: ["dev:db:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: dev, PHASE: db, WAVE: wave2 }
   environment: dev
 
-deploy-dev-web:
+dev:db:final:
   extends: .deploy-template
   stage: dev
-  needs: ["deploy-dev-app"]
-  variables: { ENVIRONMENT: dev, PHASE: web }
+  needs: ["dev:db:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: dev, PHASE: db, WAVE: final }
+  environment: dev
+
+dev:app:canary:
+  extends: .deploy-template
+  stage: dev
+  needs: ["dev:db:final"]
+  variables: { ENVIRONMENT: dev, PHASE: app, WAVE: canary }
+  environment: dev
+
+dev:app:wave2:
+  extends: .deploy-template
+  stage: dev
+  needs: ["dev:app:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: dev, PHASE: app, WAVE: wave2 }
+  environment: dev
+
+dev:app:final:
+  extends: .deploy-template
+  stage: dev
+  needs: ["dev:app:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: dev, PHASE: app, WAVE: final }
+  environment: dev
+
+dev:web:canary:
+  extends: .deploy-template
+  stage: dev
+  needs: ["dev:app:final"]
+  variables: { ENVIRONMENT: dev, PHASE: web, WAVE: canary }
+  environment: dev
+
+dev:web:wave2:
+  extends: .deploy-template
+  stage: dev
+  needs: ["dev:web:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: dev, PHASE: web, WAVE: wave2 }
+  environment: dev
+
+dev:web:final:
+  extends: .deploy-template
+  stage: dev
+  needs: ["dev:web:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: dev, PHASE: web, WAVE: final }
   environment: dev
 
 # ================= PREPROD =================
-deploy-preprod-db:
+preprod:db:canary:
   extends: .deploy-template
   stage: preprod
-  needs: ["deploy-dev-web"]        # gates on ALL of dev completing
-  variables: { ENVIRONMENT: preprod, PHASE: db }
-  environment: preprod
+  needs: ["dev:web:final"]          # gates on ALL of dev completing
   rules:
     - when: manual                  # human gate to promote dev -> preprod
-
-deploy-preprod-app:
-  extends: .deploy-template
-  stage: preprod
-  needs: ["deploy-preprod-db"]
-  variables: { ENVIRONMENT: preprod, PHASE: app }
+  variables: { ENVIRONMENT: preprod, PHASE: db, WAVE: canary }
   environment: preprod
 
-deploy-preprod-web:
+preprod:db:wave2:
   extends: .deploy-template
   stage: preprod
-  needs: ["deploy-preprod-app"]
-  variables: { ENVIRONMENT: preprod, PHASE: web }
+  needs: ["preprod:db:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: preprod, PHASE: db, WAVE: wave2 }
+  environment: preprod
+
+preprod:db:final:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:db:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: preprod, PHASE: db, WAVE: final }
+  environment: preprod
+
+preprod:app:canary:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:db:final"]
+  variables: { ENVIRONMENT: preprod, PHASE: app, WAVE: canary }
+  environment: preprod
+
+preprod:app:wave2:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:app:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: preprod, PHASE: app, WAVE: wave2 }
+  environment: preprod
+
+preprod:app:final:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:app:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: preprod, PHASE: app, WAVE: final }
+  environment: preprod
+
+preprod:web:canary:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:app:final"]
+  variables: { ENVIRONMENT: preprod, PHASE: web, WAVE: canary }
+  environment: preprod
+
+preprod:web:wave2:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:web:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: preprod, PHASE: web, WAVE: wave2 }
+  environment: preprod
+
+preprod:web:final:
+  extends: .deploy-template
+  stage: preprod
+  needs: ["preprod:web:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: preprod, PHASE: web, WAVE: final }
   environment: preprod
 
 # ================= PROD =================
-deploy-prod-db:
+prod:db:canary:
   extends: .deploy-template
   stage: prod
-  needs: ["deploy-preprod-web"]     # gates on ALL of preprod completing
-  variables: { ENVIRONMENT: prod, PHASE: db }
-  environment: production
+  needs: ["preprod:web:final"]      # gates on ALL of preprod completing
   rules:
     - when: manual                  # human gate to promote preprod -> prod
-
-deploy-prod-app:
-  extends: .deploy-template
-  stage: prod
-  needs: ["deploy-prod-db"]
-  variables: { ENVIRONMENT: prod, PHASE: app }
+  variables: { ENVIRONMENT: prod, PHASE: db, WAVE: canary }
   environment: production
 
-deploy-prod-web:
+prod:db:wave2:
   extends: .deploy-template
   stage: prod
-  needs: ["deploy-prod-app"]
-  variables: { ENVIRONMENT: prod, PHASE: web }
+  needs: ["prod:db:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: prod, PHASE: db, WAVE: wave2 }
+  environment: production
+
+prod:db:final:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:db:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: prod, PHASE: db, WAVE: final }
+  environment: production
+
+prod:app:canary:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:db:final"]
+  variables: { ENVIRONMENT: prod, PHASE: app, WAVE: canary }
+  environment: production
+
+prod:app:wave2:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:app:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: prod, PHASE: app, WAVE: wave2 }
+  environment: production
+
+prod:app:final:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:app:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: prod, PHASE: app, WAVE: final }
+  environment: production
+
+prod:web:canary:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:app:final"]
+  variables: { ENVIRONMENT: prod, PHASE: web, WAVE: canary }
+  environment: production
+
+prod:web:wave2:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:web:canary"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: prod, PHASE: web, WAVE: wave2 }
+  environment: production
+
+prod:web:final:
+  extends: .deploy-template
+  stage: prod
+  needs: ["prod:web:wave2"]
+  rules:
+    - when: manual
+  variables: { ENVIRONMENT: prod, PHASE: web, WAVE: final }
   environment: production

@@ -1,128 +1,78 @@
----
 stages:
   - dev
   - preprod
   - prod
 
-variables:
-  ANSIBLE_HOST_KEY_CHECKING: "False"
-  ANSIBLE_FORCE_COLOR: "True"
+# ---- Shared template: the only place the actual task logic lives ----
+.deploy-template:
+  script:
+    - ansible-playbook -i inventory/${ENVIRONMENT}/hosts.yml site.yml --limit ${ENVIRONMENT}_${PHASE}
 
-.ansible_template: &ansible_base
-  image: cytopia/ansible:latest
-  before_script:
-    - ansible --version
-    - mkdir -p ~/.ssh
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-
-# ---------------- DEV ----------------
-dev:db:
-  <<: *ansible_base
+# ================= DEV =================
+deploy-dev-db:
+  extends: .deploy-template
   stage: dev
-  script:
-    - ansible-playbook -i inventory/dev/hosts.yml site.yml --limit dev_db
-  environment:
-    name: dev
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+  variables: { ENVIRONMENT: dev, PHASE: db }
+  environment: dev
 
-dev:app:
-  <<: *ansible_base
+deploy-dev-app:
+  extends: .deploy-template
   stage: dev
-  script:
-    - ansible-playbook -i inventory/dev/hosts.yml site.yml --limit dev_app
-  environment:
-    name: dev
-  needs:
-    - job: dev:db
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs: ["deploy-dev-db"]
+  variables: { ENVIRONMENT: dev, PHASE: app }
+  environment: dev
 
-dev:web:
-  <<: *ansible_base
+deploy-dev-web:
+  extends: .deploy-template
   stage: dev
-  script:
-    - ansible-playbook -i inventory/dev/hosts.yml site.yml --limit dev_web
-  environment:
-    name: dev
-  needs:
-    - job: dev:app
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
+  needs: ["deploy-dev-app"]
+  variables: { ENVIRONMENT: dev, PHASE: web }
+  environment: dev
 
-# ---------------- PREPROD ----------------
-preprod:db:
-  <<: *ansible_base
+# ================= PREPROD =================
+deploy-preprod-db:
+  extends: .deploy-template
   stage: preprod
-  script:
-    - ansible-playbook -i inventory/preprod/hosts.yml site.yml --limit preprod_db
-  environment:
-    name: preprod
-  needs:
-    - job: dev:web
-  when: manual
+  needs: ["deploy-dev-web"]        # gates on ALL of dev completing
+  variables: { ENVIRONMENT: preprod, PHASE: db }
+  environment: preprod
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: manual                  # human gate to promote dev -> preprod
 
-preprod:app:
-  <<: *ansible_base
+deploy-preprod-app:
+  extends: .deploy-template
   stage: preprod
-  script:
-    - ansible-playbook -i inventory/preprod/hosts.yml site.yml --limit preprod_app
-  environment:
-    name: preprod
-  needs:
-    - job: preprod:db
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+  needs: ["deploy-preprod-db"]
+  variables: { ENVIRONMENT: preprod, PHASE: app }
+  environment: preprod
 
-preprod:web:
-  <<: *ansible_base
+deploy-preprod-web:
+  extends: .deploy-template
   stage: preprod
-  script:
-    - ansible-playbook -i inventory/preprod/hosts.yml site.yml --limit preprod_web
-  environment:
-    name: preprod
-  needs:
-    - job: preprod:app
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+  needs: ["deploy-preprod-app"]
+  variables: { ENVIRONMENT: preprod, PHASE: web }
+  environment: preprod
 
-# ---------------- PROD ----------------
-prod:db:
-  <<: *ansible_base
+# ================= PROD =================
+deploy-prod-db:
+  extends: .deploy-template
   stage: prod
-  script:
-    - ansible-playbook -i inventory/prod/hosts.yml site.yml --limit prod_db
-  environment:
-    name: prod
-  needs:
-    - job: preprod:web
-  when: manual
+  needs: ["deploy-preprod-web"]     # gates on ALL of preprod completing
+  variables: { ENVIRONMENT: prod, PHASE: db }
+  environment: production
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - when: manual                  # human gate to promote preprod -> prod
 
-prod:app:
-  <<: *ansible_base
+deploy-prod-app:
+  extends: .deploy-template
   stage: prod
-  script:
-    - ansible-playbook -i inventory/prod/hosts.yml site.yml --limit prod_app
-  environment:
-    name: prod
-  needs:
-    - job: prod:db
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+  needs: ["deploy-prod-db"]
+  variables: { ENVIRONMENT: prod, PHASE: app }
+  environment: production
 
-prod:web:
-  <<: *ansible_base
+deploy-prod-web:
+  extends: .deploy-template
   stage: prod
-  script:
-    - ansible-playbook -i inventory/prod/hosts.yml site.yml --limit prod_web
-  environment:
-    name: prod
-  needs:
-    - job: prod:app
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+  needs: ["deploy-prod-app"]
+  variables: { ENVIRONMENT: prod, PHASE: web }
+  environment: production

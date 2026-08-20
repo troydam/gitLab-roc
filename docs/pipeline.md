@@ -2,68 +2,37 @@
 
 ```mermaid
 flowchart TD
-    lint["lint"]
+    subgraph WAVE["wave rollout pattern (applies to every tier below)"]
+        direction LR
+        w_canary["canary\n(auto)"] --> w_wave2["wave2\n(manual)"] --> w_final["final\n(manual)"]
+        w_canary -.->|"group empty"| w_skip["skip, exit 0"]
+        w_wave2 -.->|"group empty"| w_skip
+        w_final -.->|"group empty"| w_skip
+    end
+
+    lint["lint"] --> DEV
 
     subgraph DEV["dev"]
-        direction TB
-        subgraph DEVDB["db"]
-            direction LR
-            devdb_c["canary"] --> devdb_w["wave2"] --> devdb_f["final"]
-        end
-        subgraph DEVAPP["app"]
-            direction LR
-            devapp_c["canary"] --> devapp_w["wave2"] --> devapp_f["final"]
-        end
-        subgraph DEVWEB["web"]
-            direction LR
-            devweb_c["canary"] --> devweb_w["wave2"] --> devweb_f["final"]
-        end
-        devdb_f --> devapp_c
-        devapp_f --> devweb_c
+        direction LR
+        devdb["db\ncanary → wave2 → final"] --> devapp["app\ncanary → wave2 → final"] --> devweb["web\ncanary → wave2 → final"]
     end
 
     subgraph PREPROD["preprod"]
-        direction TB
-        subgraph PPDB["db"]
-            direction LR
-            ppdb_c["canary"] --> ppdb_w["wave2"] --> ppdb_f["final"]
-        end
-        subgraph PPAPP["app"]
-            direction LR
-            ppapp_c["canary"] --> ppapp_w["wave2"] --> ppapp_f["final"]
-        end
-        subgraph PPWEB["web"]
-            direction LR
-            ppweb_c["canary"] --> ppweb_w["wave2"] --> ppweb_f["final"]
-        end
-        ppdb_f --> ppapp_c
-        ppapp_f --> ppweb_c
+        direction LR
+        ppdb["db\ncanary → wave2 → final"] --> ppapp["app\ncanary → wave2 → final"] --> ppweb["web\ncanary → wave2 → final"]
     end
 
     subgraph PROD["prod"]
-        direction TB
-        subgraph PRDB["db"]
-            direction LR
-            prdb_c["canary"] --> prdb_w["wave2"] --> prdb_f["final"]
-        end
-        subgraph PRAPP["app"]
-            direction LR
-            prapp_c["canary"] --> prapp_w["wave2"] --> prapp_f["final"]
-        end
-        subgraph PRWEB["web"]
-            direction LR
-            prweb_c["canary"] --> prweb_w["wave2"] --> prweb_f["final"]
-        end
-        prdb_f --> prapp_c
-        prapp_f --> prweb_c
+        direction LR
+        prdb["db\ncanary → wave2 → final"] --> prapp["app\ncanary → wave2 → final"] --> prweb["web\ncanary → wave2 → final"]
     end
 
-    lint --> devdb_c
-    devweb_f -->|"manual"| ppdb_c
-    ppweb_f -->|"manual"| prdb_c
+    WAVE -.-> DEV
+    devweb -->|"manual: promote"| ppdb
+    ppweb -->|"manual: promote"| prdb
 
-    classDef manual fill:#e8a33d,stroke:#8a5a12,color:#1a1300,font-weight:bold;
-    class devdb_w,devdb_f,devapp_w,devapp_f,devweb_w,devweb_f manual
-    class ppdb_c,ppdb_w,ppdb_f,ppapp_w,ppapp_f,ppweb_w,ppweb_f manual
-    class prdb_c,prdb_w,prdb_f,prapp_w,prapp_f,prweb_w,prweb_f manual
+    classDef gate fill:#e8a33d,stroke:#8a5a12,color:#1a1300,font-weight:bold;
+    classDef skip fill:none,stroke:#888,color:#888,stroke-dasharray: 3 3;
+    class w_wave2,w_final,ppdb,prdb gate
+    class w_skip skip
 ```

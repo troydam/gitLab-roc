@@ -17,16 +17,13 @@ Every tier (`db`, `app`, `web`) in every environment (`dev`, `preprod`,
 
 ### Gating rules
 
-- `wave2` and `final` are always `when: manual`, in every environment,
-  including dev. A human must review the prior wave before promoting.
-  Do not remove this even for dev "for convenience" — the entire point
-  is to prevent an unreviewed issue in `wave2` reaching `final`
-  unattended.
-- `canary` of a tier auto-runs once the previous tier's `final` passes
-  (`db:final` → `app:canary` → ... → `web:final`), except:
-- `db:canary` of `preprod` and `prod` is `when: manual` — this is the
-  environment promotion gate (dev→preprod, preprod→prod), separate from
-  the wave gate.
+Every deploy job — all 27 of `<env>:<tier>:<wave>` — is `when: manual`,
+in every environment including dev. Nothing after `lint` runs without
+an explicit human click. Do not make any wave or tier auto-run "for
+convenience": a human must approve each of
+canary→wave2→final within a tier, and each db→app→web tier handoff
+within an environment, and each dev→preprod→prod promotion. `lint` is
+the only job that runs automatically, on every push to `main`.
 
 ### Adding a new environment or tier
 

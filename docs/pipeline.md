@@ -4,9 +4,9 @@ Source of truth. Static rendered copy: [wave-rollout-pipeline.html](wave-rollout
 
 ```mermaid
 flowchart TD
-    subgraph WAVE["wave rollout pattern (applies to every tier below)"]
+    subgraph WAVE["wave rollout pattern (applies to every tier below) - every step is when: manual"]
         direction LR
-        w_canary["canary\n(auto)"] --> w_wave2["wave2\n(manual)"] --> w_final["final\n(manual)"]
+        w_canary["canary\n(manual)"] --> w_wave2["wave2\n(manual)"] --> w_final["final\n(manual)"]
         w_canary -.->|"group empty"| w_skip["skip, exit 0"]
         w_wave2 -.->|"group empty"| w_skip
         w_final -.->|"group empty"| w_skip
@@ -35,6 +35,6 @@ flowchart TD
 
     classDef gate fill:#e8a33d,stroke:#8a5a12,color:#1a1300,font-weight:bold;
     classDef skip fill:none,stroke:#888,color:#888,stroke-dasharray: 3 3;
-    class w_wave2,w_final,ppdb,prdb gate
+    class w_canary,w_wave2,w_final,devdb,devapp,devweb,ppdb,ppapp,ppweb,prdb,prapp,prweb gate
     class w_skip skip
 ```

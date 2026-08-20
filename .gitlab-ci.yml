@@ -42,6 +42,8 @@ lint:
 dev:db:canary:
   extends: .deploy-template
   stage: dev
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: dev, PHASE: db, WAVE: canary }
   environment: dev
 
@@ -67,6 +69,8 @@ dev:app:canary:
   extends: .deploy-template
   stage: dev
   needs: ["dev:db:final"]
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: dev, PHASE: app, WAVE: canary }
   environment: dev
 
@@ -92,6 +96,8 @@ dev:web:canary:
   extends: .deploy-template
   stage: dev
   needs: ["dev:app:final"]
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: dev, PHASE: web, WAVE: canary }
   environment: dev
 
@@ -145,6 +151,8 @@ preprod:app:canary:
   extends: .deploy-template
   stage: preprod
   needs: ["preprod:db:final"]
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: preprod, PHASE: app, WAVE: canary }
   environment: preprod
 
@@ -170,6 +178,8 @@ preprod:web:canary:
   extends: .deploy-template
   stage: preprod
   needs: ["preprod:app:final"]
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: preprod, PHASE: web, WAVE: canary }
   environment: preprod
 
@@ -223,6 +233,8 @@ prod:app:canary:
   extends: .deploy-template
   stage: prod
   needs: ["prod:db:final"]
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: prod, PHASE: app, WAVE: canary }
   environment: production
 
@@ -248,6 +260,8 @@ prod:web:canary:
   extends: .deploy-template
   stage: prod
   needs: ["prod:app:final"]
+  rules:
+    - when: manual
   variables: { ENVIRONMENT: prod, PHASE: web, WAVE: canary }
   environment: production
 

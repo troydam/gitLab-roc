@@ -1,5 +1,7 @@
 # Pipeline blueprint
 
+Source of truth. Static rendered copy: [wave-rollout-pipeline.html](wave-rollout-pipeline.html).
+
 ```mermaid
 flowchart TD
     subgraph WAVE["wave rollout pattern (applies to every tier below)"]

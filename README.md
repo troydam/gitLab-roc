@@ -4,7 +4,8 @@ Ansible-driven, GitLab CI-orchestrated deployment pipeline for a three-tier
 application (db → app → web), promoted through three environments
 (dev → preprod → prod).
 
-Diagram: [docs/pipeline.md](docs/pipeline.md)
+Diagram: [docs/pipeline.md](docs/pipeline.md) (source of truth) — nicer
+static view: [docs/wave-rollout-pipeline.html](docs/wave-rollout-pipeline.html)
 
 ## Folder structure
 
@@ -52,7 +53,8 @@ Diagram: [docs/pipeline.md](docs/pipeline.md)
 
 | Path | Type | Purpose |
 |---|---|---|
-| `docs/pipeline.md` | Diagram | Mermaid diagrams of the env/tier flow and the wave-gating pattern (renders natively on GitLab/GitHub). Source of truth for the shape described in `CLAUDE.md`. |
+| `docs/pipeline.md` | Diagram | Mermaid diagram of the env/tier flow and wave-gating pattern (renders natively on GitLab/GitHub). Source of truth for the shape described in `CLAUDE.md`. |
+| `docs/wave-rollout-pipeline.html` | Diagram (generated) | Static styled render of the same diagram, for a nicer view than plain Mermaid. Not the source of truth — regenerate from `docs/pipeline.md` after any change to it, don't hand-edit. |
 | `.gitlab-ci.yml` | GitLab CI config | Defines a `lint` stage followed by `dev` → `preprod` → `prod`. Within each environment: `db` → `app` → `web` tier ordering, and within each tier: `canary` → `wave2` → `final` rollout waves, all via a shared `.deploy-template` and `needs:`. See `CLAUDE.md` for the full wave-rollout convention. Gated to the `main` branch by a top-level `workflow: rules`. The deploy template runs on the `cytopia/ansible` image and loads an SSH key from the `SSH_PRIVATE_KEY` CI/CD variable (masked, project settings) before invoking Ansible. |
 | `ansible.cfg` | Ansible config | Repo-local Ansible defaults: inventory path, `host_key_checking`, disables retry-file clutter, `yaml` stdout for readable CI logs, connection `pipelining` for speed. Keeps behavior consistent across whatever runner/image executes the job, instead of relying on image defaults. |
 | `.yamllint` | Lint config | Rules for the `lint` CI job's `yamllint` pass — relaxes line-length to 120 and accepts `true`/`false` as the only truthy spellings. |

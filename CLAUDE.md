@@ -64,6 +64,37 @@ per wave, sharing one `.deploy-template`, is the DRY mechanism here —
 the shared logic lives once in the template; only 4 lines
 (`stage`/`needs`/`rules`/`variables`) repeat per job.
 
+### Gate discipline
+
+A `when: manual` job is a pause point, not a formality. Before clicking
+one:
+
+- Check the previous wave's job log and, once roles do real work, the
+  actual service (health check, dashboard, error rate) on the hosts
+  that wave touched — not just that the Ansible job exited green.
+- Wait a deliberate interval after a wave before promoting it,
+  proportional to risk — don't click `wave2` the instant `canary` goes
+  green.
+- If the previous wave looks wrong, do not click. Roll back (redeploy
+  the previous known-good version) instead of leaving the pipeline
+  stalled.
+
+Gate clicks are the audit trail (GitLab records who clicked and when)
+— treat each one as an approval, not a rubber stamp.
+
+### Shelf — deferred, revisit when scope grows
+
+Not yet implemented. Do not build without discussing scope first:
+
+- **Protected environments**: `prod` (and arguably `preprod`) gates
+  should only be clickable by specific roles (e.g. Maintainer/lead),
+  via GitLab's protected-environment deploy approval rules. Right now
+  any project member with pipeline-trigger permission can click any
+  gate, dev or prod alike.
+- **Per-gate "what to check" guidance**: once roles do real work, each
+  gate should point at a concrete signal (a dashboard link, a health
+  check endpoint) instead of the generic checklist above.
+
 ## Roles
 
 `roles/db/`, `roles/app/`, `roles/web/` are placeholder skeletons

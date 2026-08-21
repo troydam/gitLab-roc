@@ -126,13 +126,5 @@ exits 0 without invoking Ansible.
 
 ## Known gaps
 
-- `roles/db/`, `roles/app/`, `roles/web/` currently only contain a
-  placeholder `debug` task — this is a generic pipeline template, so
-  real tasks (install engine/runtime/web server, deploy config) need to
-  be added once the actual technology stack is decided.
-- No `requirements.yml` is present (no external role/collection deps
-  yet — add one once roles start using Galaxy content).
-- No Ansible Vault usage yet — roles will eventually need secrets
-  (db passwords, API keys, certs) that shouldn't be committed in
-  plaintext to `group_vars/`.
-- No smoke-test/verification step after a deploy job runs.
+Tracked, prioritized, in `CLAUDE.md` under **Shelf — deferred, revisit
+when scope grows**.

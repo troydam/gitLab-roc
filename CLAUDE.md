@@ -82,19 +82,6 @@ one:
 Gate clicks are the audit trail (GitLab records who clicked and when)
 — treat each one as an approval, not a rubber stamp.
 
-### Shelf — deferred, revisit when scope grows
-
-Not yet implemented. Do not build without discussing scope first:
-
-- **Protected environments**: `prod` (and arguably `preprod`) gates
-  should only be clickable by specific roles (e.g. Maintainer/lead),
-  via GitLab's protected-environment deploy approval rules. Right now
-  any project member with pipeline-trigger permission can click any
-  gate, dev or prod alike.
-- **Per-gate "what to check" guidance**: once roles do real work, each
-  gate should point at a concrete signal (a dashboard link, a health
-  check endpoint) instead of the generic checklist above.
-
 ## Roles
 
 `roles/db/`, `roles/app/`, `roles/web/` are placeholder skeletons
@@ -115,3 +102,40 @@ history for why this was consolidated).
 (not committed). Any future secret a role needs (db passwords, API
 keys, certs) must go through Ansible Vault or CI/CD variables — never
 committed in plaintext to `group_vars/`.
+
+## Shelf — deferred, revisit when scope grows
+
+Not yet implemented. Do not build any of these without discussing
+scope first. Ordered by priority (highest first):
+
+1. **Real role tasks**: `roles/db/`, `roles/app/`, `roles/web/` only
+   run a placeholder `debug` task — nothing is actually configured
+   yet. Blocks everything below that depends on roles "doing real
+   work." Needs the actual target stack decided first.
+2. **Secrets convention**: no Ansible Vault usage yet. Once roles do
+   real work they'll need db passwords, API keys, certs — decide
+   Vault vs CI/CD variables before the first real secret shows up in
+   a role.
+3. **Protected environments**: `prod` (and arguably `preprod`) gates
+   should only be clickable by specific roles (e.g. Maintainer/lead),
+   via GitLab's protected-environment deploy approval rules. Right now
+   any project member with pipeline-trigger permission can click any
+   gate, dev or prod alike.
+4. **Per-gate "what to check" guidance**: once roles do real work, each
+   gate should point at a concrete signal (a dashboard link, a health
+   check endpoint) instead of the generic checklist in Gate discipline
+   above.
+5. **Smoke-test / post-deploy verification**: no step currently
+   confirms a wave actually succeeded beyond Ansible's own task
+   status (e.g. no HTTP health check after a `web` wave).
+6. **Dynamic tier list**: `db`/`app`/`web` is hardcoded across
+   `roles/`, `site.yml`, inventory, and all 27 `.gitlab-ci.yml` job
+   stanzas — a project needing a different tier list currently forks
+   this template and hand-edits those in place (documented, not
+   automated). A GitLab dynamic child-pipeline (generate job YAML from
+   a `tiers.yml` at pipeline time) would make the tier list
+   project-configurable instead, at the cost of a generator script and
+   child-pipeline indirection. Not worth building until a second
+   project actually needs a different tier list.
+7. **`requirements.yml`**: no external role/collection deps yet — add
+   one once a role starts pulling in Galaxy content.
